@@ -1,0 +1,58 @@
+--Create a Medical Supplies Store Database--
+CREATE TABLE medical_supplies (id INTEGER PRIMARY KEY, items TEXT, cost INTEGER, quantity INTEGER, aisle INTEGER);
+
+INSERT INTO medical_supplies VALUES (1, "Scrub tops size small", 39, 60, 7);
+INSERT INTO medical_supplies VALUES (2, "Scrub bottoms size small", 49, 60, 7);
+INSERT INTO medical_supplies VALUES (3, "Scrub tops size medium", 39, 70, 7);
+INSERT INTO medical_supplies VALUES (4, "Scrub bottoms size medium", 49, 80, 7);
+INSERT INTO medical_supplies VALUES (5, "Scrub tops size large", 45, 65, 7);
+INSERT INTO medical_supplies VALUES (6, "Scrub bottoms size large", 55, 60, 7);
+INSERT INTO medical_supplies VALUES (7, "Scrub tops size xlarge", 45, 40, 7);
+INSERT INTO medical_supplies VALUES (8, "Scrub bottoms size xlarge", 55, 37, 7);
+INSERT INTO medical_supplies VALUES (9, "Stethoscope", 95, 60, 10);
+INSERT INTO medical_supplies VALUES (10, "Pen light", 9, 100,1);
+INSERT INTO medical_supplies VALUES (11, "Medical Scissors", 20, 70, 2);
+INSERT INTO medical_supplies VALUES (12, "Blood Pressure Cuff", 35, 25, 10);
+INSERT INTO medical_supplies VALUES (13, "AED Defib", 150, 6,4);
+INSERT INTO medical_supplies VALUES (14, "Leather box shoes size 8", 99, 10, 11);
+INSERT INTO medical_supplies VALUES (15, "Latex gloves size small", 8, 3, 3);
+INSERT INTO medical_supplies VALUES (16, "First Aid Bag- Trauma Kit", 120, 10, 1);
+INSERT INTO medical_supplies VALUES (17, "Band-Aids qty.50", 3.99, 50, 5);
+INSERT INTO medical_supplies VALUES (18, "Thermometer", 10.99, 25, 6);
+INSERT INTO medical_supplies VALUES (19, "OxiMeter", 40, 15, 8);
+INSERT INTO medical_supplies VALUES (20, "Face Masks qty.50", 4.99, 50, 9);
+
+--Displayed database--
+
+SELECT * 
+FROM medical_supplies;
+
+--Displayed database ordered by aisle--
+
+SELECT * 
+FROM medical_supplies 
+ORDER BY aisle;
+
+--What is the sum of quantities in database?--
+
+SELECT SUM(quantity) 
+FROM medical_supplies;
+
+--What is the avg amount of quantities?--
+
+SELECT avg(quantity)
+FROM medical_supplies;
+
+--What is the count of supplies located in aisle 7?--
+
+SELECT COUNT(*)
+FROM medical_supplies
+WHERE aisle = 7;
+
+--What items have a quantity of more than 50 in descending order?--
+SELECT items
+FROM medical_supplies
+WHERE quantity >50
+ORDER BY quantity desc;
+
+
