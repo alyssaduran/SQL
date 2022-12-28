@@ -1,0 +1,83 @@
+/* Create table about the people and what they do here */
+/* Create table about the people and what they do here */
+CREATE TABLE movie_star(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        fullname TEXT,
+        age INTEGER,
+        spouse TEXT);
+
+INSERT INTO movie_star (fullname, age, spouse) VALUES ("Robert Downy Jr.", 57, "Susan Downey"),
+("Ryan Reynolds", 46, "Blake Lively"),
+("Scarlett Johansson", 38, "Colin Josh"),
+("Jaimie Alexander", 38, "None"),
+("Blake Lively", 35, "Ryan Reynolds"),
+("Dax Shepard", 47, "Kristen Bell"),
+("Kristen Bell", 42, "Dax Shepard"),
+("John Krasinski", 43, "Emily Blunt"),
+("Emily Blunt", 39, "John Krasinski"),
+("Elizabeth Olsen", 33, "Robbie Arnett"),
+("Paul Bettany", 51, "Jennifer Connelly"),
+("Chris Evans", 41, "None"),
+("Kat Dennings", 36, "None");
+
+CREATE TABLE movies(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        movie_star_id INTEGER,
+        movie_fullname TEXT);
+
+INSERT INTO movies(movie_star_id, movie_fullname) VALUES 
+(1, "Captain America: Civil War"),
+(12,"Captain America: Civil War"),
+(3, "Captain America: Civil War"),
+(2, "Green Lantern"),
+(4, "Thor"),
+(13, "Thor"),
+(5, "Green Lantern"),
+(6, "When in Rome"),
+(7, "When in Rome"),
+(10, "Captain America: Civil War"),
+(8, "Doctor Strange in the Multiverse of Madness"),
+(10, "Doctor Strange in the Muoltiverse of Madness"),
+(8, "A Quiet Place"),
+(9, "A Quiet Place"),
+(11, "Captain America: Civil War"),
+(1, "The Avengers: Age of Ultron"),
+(12, "The Avengers: Age of Ultron"),
+(3, "The Avengers: Age of Ultron"),
+(10, "The Avengers: Age of Ultron"),
+(11, "The Avengers: Age of Ultron");
+
+--Who came out in The Avengers: Age of Ultron?
+
+SELECT movie_star.fullname, movies.movie_fullname
+FROM movie_star
+JOIN movies
+ON movie_star.id = movies.movie_star_id
+WHERE movies.movie_fullname = "The Avengers: Age of Ultron";
+
+--How many actors came out in The Avengers: Age of Ultron?
+SELECT COUNT(movie_star_id)
+FROM movies
+WHERE movie_fullname = "The Avengers: Age of Ultron";
+
+--Who is married to Ryan Reynolds?
+SELECT spouse
+FROM movie_star
+WHERE fullname = "Ryan Reynolds";
+
+--What is the average age of these actors?
+SELECT AVG(age)
+FROM movie_star;
+
+--Who is married to who from oldest to youngest?
+SELECT fullname, spouse
+FROM movie_star
+WHERE spouse != "None"
+ORDER BY age DESC
+
+
+
+
+
+
+
