@@ -6,7 +6,7 @@ FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info"
 WHERE type = 'Movie';
 
 #2 When was the most recent batch of tv shows and/or movies added to the database?
-SELECT date(date_added)
+SELECT MAX(date(date_added))
 FROM "CharlotteChaze/BreakIntoTech"."netflix_titles_info"
 LIMIT 1;
 
