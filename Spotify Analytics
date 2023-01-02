@@ -1,0 +1,71 @@
+--In this sql project, I downloaded Spotify data from Kaggle.
+--I then created a table to insert the data into.
+--And finally performed analytics on the data using sql.
+
+--Created the table:
+
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+song_key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+song_mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness text NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL );
+
+--What are the top songs based on popularity?
+SELECT artist_name, track_name, popularity
+FROM BIT_DB.Spotifydata
+WHERE popularity IN (SELECT MAX(popularity) FROM BIT_DB.Spotifydata);
+
+--Which song is the longest with the least danceability?
+SELECT artist_name, track_name,MAX(duration_ms)
+FROM BIT_DB.Spotifydata
+WHERE danceability IN (SELECT MIN(danceability) FROM BIT_DB.Spotifydata);
+
+--which song has the highest avgerage energy and also determined the average population, average danceability, and average loudness
+SELECT artist_name, track_name, AVG(popularity) Avg_pop,AVG(danceability) Avg_dance, AVG(energy) Avg_energy, 
+AVG(loudness) Avg_loudness
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name, track_name
+ORDER BY avg_energy;
+
+--CTE using the average popularity, I could determine which artist were 90 and above to calculate the 'top star'
+
+
+WITH Top_Star AS(
+SELECT spotify.artist_name, AVG(spotify.popularity) AS average_popularity
+FROM Spotifydata spotify
+GROUP BY 1
+)
+SELECT artist_name, average_popularity, 'Top Star' AS Tag
+FROM Top_Star
+WHERE average_popularity >= 90;
+
+--CTE with a CASE statement to categorize popularity by 'Top songs', 'Popularity greater than 80 songs', 
+--'Popularity greater than50', and 'Less than 50" thenfiltered out only 'Top songs'
+WITH Popularity_rating AS(
+SELECT spotify.artist_name,spotify.track_name,
+CASE
+    WHEN spotify.popularity >= 90 THEN "Top songs"
+    WHEN spotify.popularity > 80 THEN "Popularity greater than 80 songs"
+    WHEN spotify.popularity > 50 THEN "Popularity greater than 50"
+    ELSE "Less than 50"
+    END AS Label
+FROM Spotifydata as spotify
+)
+SELECT artist_name, track_name, label
+FROM popularity_rating
+WHERE Label = "Top songs"
+ORDER BY Label
