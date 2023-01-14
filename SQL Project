@@ -171,7 +171,23 @@ ON tracks.AlbumId = albums.AlbumId
 JOIN chinook.artists artists
 ON albums.ArtistId = artists.ArtistId
 GROUP BY 1
-ORDER BY 2 DESC;
+ORDER BY 2 DESC
+LIMIT 1;
+
+--Which artist brought in the least money?
+SELECT artists.Name, ROUND(SUM(invoices.Total),2) AS total_sales
+FROM chinook.invoice_items invoice_items
+JOIN chinook.invoices invoices
+ON invoice_items.InvoiceId = invoices.InvoiceId
+JOIN chinook.tracks tracks
+ON invoice_items.TrackId = tracks.TrackId
+JOIN chinook.albums albums
+ON tracks.AlbumId = albums.AlbumId
+JOIN chinook.artists artists
+ON albums.ArtistId = artists.ArtistId
+GROUP BY 1
+ORDER BY 2
+LIMIT 1;
 
 --What are the different positions that the employees hold?
 SELECT DISTINCT title
