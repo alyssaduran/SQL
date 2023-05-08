@@ -52,9 +52,11 @@ compared AS(
  JOIN forest_area_2016 AS fa_16
  ON fa_90.forest_country_name = fa_16.forest_country_name
 )
-SELECT c_country_name AS Area, ROUND(fa90_ff_area_sqkm::numeric,2) AS Total_Forest_Area_1990_sqkm,
+SELECT c_country_name AS Area, 
+        ROUND(fa90_ff_area_sqkm::numeric,2) AS Total_Forest_Area_1990_sqkm,
         ROUND(fa16_ff_area_sqkm::numeric,2) AS Total_Forest_Area_2016_sqkm,
-        ROUND(difference_1990_to_2016::numeric,2) AS Forest_Area_Lost, ROUND(percent_change::numeric,2) AS percent_change
+        ROUND(difference_1990_to_2016::numeric,2) AS Forest_Area_Lost, 
+        ROUND(percent_change::numeric,2) AS percent_change
 FROM compared;
 
 --Shows the country that is as big as the amount of area lost from 1990 to 2016.
@@ -79,8 +81,8 @@ LIMIT 1;
 --In 2016 the total forest percentage.
 
 SELECT regions_region, forest_and_land_year AS year,
-  		Round(((Sum(ff_area_sqkm) / Sum(land_total_area_sq_mi*2.59))*100)::Numeric, 2) AS
-      Forest_percentage
+  Round(((Sum(ff_area_sqkm) / Sum(land_total_area_sq_mi*2.59))*100)::Numeric, 2)
+   AS Forest_percentage
 FROM forestation
 WHERE forest_and_land_year = 2016 AND regions_region = 'World'
 GROUP BY 1, 2;
@@ -88,8 +90,8 @@ GROUP BY 1, 2;
 --The region with the highest relative forestation in 2016.
 
 SELECT regions_region, forest_and_land_year AS year,
-  		Round(((Sum(ff_area_sqkm) / Sum(land_total_area_sq_mi*2.59))*100)::Numeric, 2) AS
-      Forest_percentage
+  	Round(((Sum(ff_area_sqkm) / Sum(land_total_area_sq_mi*2.59))*100)::Numeric, 2) 
+    AS Forest_percentage
 FROM forestation
 WHERE forest_and_land_year = 2016
 GROUP BY 1, 2
@@ -142,16 +144,16 @@ LIMIT 1;
 
 WITH region_1990 AS(
  SELECT regions_region, forest_and_land_year,
- Round(((Sum(ff_area_sqkm) / Sum(land_total_area_sq_mi*2.59))*100)::Numeric, 2) AS
-percent_forest_area_1990
+ Round(((Sum(ff_area_sqkm) / Sum(land_total_area_sq_mi*2.59))*100)::Numeric, 2) 
+ AS percent_forest_area_1990
  FROM forestation
  WHERE forest_and_land_year = 1990
  GROUP BY 1, 2
 ),
 region_2016 AS(
   SELECT regions_region,
-  Round(((Sum(ff_area_sqkm) / Sum(land_total_area_sq_mi*2.59))*100)::Numeric, 2) AS
-percent_forest_area_2016
+  Round(((Sum(ff_area_sqkm) / Sum(land_total_area_sq_mi*2.59))*100)::Numeric, 2) 
+  AS percent_forest_area_2016
     FROM forestation
     WHERE forest_and_land_year = 2016
     GROUP BY 1
@@ -160,12 +162,14 @@ table2 AS(
 SELECT r90.regions_region AS region_name,
     r90.percent_forest_area_1990 AS percent_1990,
     r16.percent_forest_area_2016 AS percent_2016,
-  	(r90.percent_forest_area_1990 - r16.percent_forest_area_2016)AS percent_difference
+  	(r90.percent_forest_area_1990 - r16.percent_forest_area_2016)AS 
+    percent_difference
 FROM region_1990 AS r90
 JOIN region_2016 AS r16
 	ON r90.regions_region = r16.regions_region
 )
-SELECT region_name region, percent_1990 forest_percentage_1990, 		percent_2016 forest_percentage_2016, percent_difference
+SELECT region_name region, percent_1990 forest_percentage_1990, 		
+        percent_2016 forest_percentage_2016, percent_difference
 FROM table2
 ORDER BY 4 DESC
 LIMIT 3;
@@ -200,7 +204,8 @@ WITH county_dif_90 AS(
    JOIN county_dif_16 AS cd16
     ON cd90.forest_country_name = cd16.forest_country_name
 )
-SELECT Region_name region, cty_name country, cd90_area  country_area_1990, cd16_area country_area_2016,
+SELECT Region_name region, cty_name country, cd90_area  country_area_1990, 
+        cd16_area country_area_2016,
          ROUND((cd16_area - cd90_area)::numeric,2) AS amt_increased
 FROM combined
 ORDER BY 5 DESC
@@ -240,7 +245,8 @@ FROM combined
 WHERE region_name != 'World'
 ORDER BY 5
 LIMIT 5)
-SELECT region_name region, cty_name country, ABS(amt_difference) AS absolute_forest_area_sqkm
+SELECT region_name region, cty_name country, ABS(amt_difference) AS 
+        absolute_forest_area_sqkm
 FROM t3;
 
 --Top 5 percent decrease in forest area by country from 1990 to 2016.
@@ -271,7 +277,8 @@ WITH county_dif_90 AS(
    JOIN county_dif_16 AS cd16
     ON cd90.forest_country_name = cd16.forest_country_name
 )
-SELECT region_name region, cty_name country, cd90_percent country_area_2990, cd16_percent country_area_2016,
+SELECT region_name region, cty_name country, cd90_percent country_area_2990, 
+        cd16_percent country_area_2016,
        (cd16_percent - cd90_percent)*100/cd90_percent AS percent_difference
 FROM combined
 ORDER BY 5
@@ -291,7 +298,8 @@ q1 AS(
   FROM forestation
 ),
 joined AS(
-  SELECT ROUND(CAST(percent.percent_forest AS numeric),2) AS percent_f, q1.forest_country_name, q1.forest_and_land_year AS year,
+  SELECT ROUND(CAST(percent.percent_forest AS numeric),2) AS percent_f, 
+        q1.forest_country_name, q1.forest_and_land_year AS year,
         q1.forest_country_name AS country_name
   FROM percent
   JOIN q1
@@ -326,7 +334,8 @@ q1 AS(
   FROM forestation
 ),
 joined AS(
-  SELECT CAST(percent.percent_forest AS INT) AS percent_f, q1.forest_country_name, q1.forest_and_land_year AS year,
+  SELECT CAST(percent.percent_forest AS INT) AS percent_f, 
+        q1.forest_country_name, q1.forest_and_land_year AS year,
         q1.forest_country_name AS country_name, q1.regions_region AS region
   FROM percent
   JOIN q1
@@ -343,20 +352,24 @@ SELECT country_name, percent_f, region,
     		END AS quartile
      FROM joined
 )
-SELECT DISTINCT(quartile), region, country_name country, ROUND(percent_f::numeric,2) percent_designated_forest
+SELECT DISTINCT(quartile), region, country_name country, 
+    ROUND(percent_f::numeric,2) percent_designated_forest
 FROM cases
 WHERE quartile = '75-100%'
 ORDER BY 4 DESC;
 
-#Recommendations based on data
+--Recommendations based on data
 
-Most regions in the world are increasing forest area. 
---The only regions not increasing are Latin America & Caribbean and Sub-Saharan Africa. 
---These two regions decreased forest area percentage from 1990 to 2016. 
---The change in the world forest area percentage shows how impactful the decrease in forest area from 
---Latin America & Caribbean and Sub-Saharan Afric was.
---Focusing on countries that had the highest amount decrease in forestation shown in the 
---"top 5 amount decrease in forest area by country" query and the highest percent decrease shown in the "top 5 percent decrease" query 
---would be a great place to stop the decline in forestation. I would also recommend communicating with China to see 
---what they are doing to increase the amount of forestation so drastically would be very helpful. 
+--Most regions in the world are increasing forest area. 
+--The only regions not increasing are Latin America & Caribbean and 
+--Sub-Saharan Africa. These two regions decreased forest area percentage 
+--from 1990 to 2016. The change in the world forest area percentage shows 
+--how impactful the decrease in forest area from Latin America & Caribbean and
+--Sub-Saharan Afric was. Focusing on countries that had the highest amount 
+--decrease in forestation shown in the "top 5 amount decrease in forest area by 
+--country" query and the highest percent decrease shown in the 
+--"top 5 percent decrease" query would be a great place to stop the decline in 
+--forestation. I would also recommend communicating with China to see what they 
+--are doing to increase the amount of forestation so drastically would be very 
+--helpful. 
 
