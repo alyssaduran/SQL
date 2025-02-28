@@ -1,0 +1,58 @@
+-- Using toyu database
+
+-- [1] List the stuId, names, major departments and minor code of all students minoring in CSCI, CINF or ITEC in the following manner.
+SELECT DISTINCT s.stuId, CONCAT(s.fname, ' ', s.lname) AS student,
+	d.deptName AS major,
+	s.minor
+FROM student AS s INNER JOIN department AS d ON (s.major =  d.deptCode)
+WHERE s.minor = 'CSCI'
+OR s.minor = 'CINF'
+OR s.minor = 'ITEC';
+
+
+-- [2] Repeat [1] Include only students with a faculty advisor, and list also their faculty advisor names in the following manner. 
+SELECT DISTINCT s.stuId, CONCAT(s.fname, ' ', s.lname) AS student,
+	d.deptName AS major,
+	s.minor,
+	CONCAT(f.fname, ' ', f.lname) AS advisor
+FROM student AS s INNER JOIN department AS d ON (s.major =  d.deptCode)
+	INNER JOIN faculty AS f ON (s.advisor = f.facId)
+WHERE s.minor IN ('CSCI', 'CINF', 'ITEC');
+
+-- [3] Repeat [2] but add the condition to show all students majoring or minoring in 'CSCI', 'CINF' or 'ITEC';
+SELECT DISTINCT s.stuId, CONCAT(s.fname, ' ', s.lname) AS student,
+	d.deptName AS major,
+	s.minor,
+	CONCAT(f.fname, ' ', f.lname) AS advisor
+FROM student AS s INNER JOIN department AS d ON (s.major =  d.deptCode)
+	INNER JOIN faculty AS f ON (s.advisor = f.facId)
+WHERE s.major IN ('CSCI', 'CINF', 'ITEC')
+OR s.minor IN ('CSCI', 'CINF', 'ITEC');
+
+-- [4] List the class grade information of all courses taught by a CSCI faculty member in the following manner.
+
+SELECT DISTINCT s.stuId,
+	CONCAT(s.fname, ' ', s.lname) AS student,
+	c.classId,
+	CONCAT(co.rubric, ' ', co.number) AS course,
+	co.title AS `course title`,
+	e.grade,
+	CONCAT(f.fname, ' ', f.lname) AS faculty
+FROM student AS s INNER JOIN enroll AS e USING (stuId)
+	INNER JOIN class AS c USING (classId)
+	INNER JOIN faculty AS f USING (facId)
+	INNER JOIN course AS co USING (courseId)
+WHERE f.deptCode = 'CSCI';
+
+-- [5] List the students who have taken two or more classes in the year 2019 in the following manner.
+
+SELECT DISTINCT s.stuId,
+	CONCAT(s.fname, ' ', s.lname) AS student
+FROM student AS s INNER JOIN enroll AS e1 ON (s.stuId = e1.stuId)
+	INNER JOIN class AS c1 ON (e1.classId = c1.classId)
+	INNER JOIN enroll AS e2 ON (s.stuId = e2.stuId)
+	INNER JOIN class AS c2 ON (e2.classId = c2.classId)
+WHERE c1.year = 2019
+AND c2.year = 2019
+AND c1.classId <> c2.classId;
+
