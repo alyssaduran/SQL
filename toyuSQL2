@@ -1,0 +1,80 @@
+-- Using tuyo database
+-- [1] List the names, current level ids and levels of all swimmers with the last name 'Khan' ans have participated in an event in the meet 'UHCL Open' in the following manner.
+SELECT DISTINCT s.LName, s.FName, s.currentLevelId, l.level
+FROM swimmer AS s INNER JOIN participation AS p USING (swimmerId)
+    INNER JOIN event AS e USING (eventId)
+    INNER JOIN meet AS m USING (meetId)
+	 INNER JOIN level AS l ON (s.currentLevelId = l.levelId)
+WHERE m.title = 'UHCL Open'
+AND s.LName = 'Khan';
+
+-- [2] List the swimmerId of all swimmers and the ids of their caretakers. Include the results for both primary and other caretakers.
+
+(SELECT s.swimmerId, s.main_ct_id AS ct_id FROM Swimmer s)
+UNION
+(SELECT DISTINCT o.swimmerId, o.ct_id AS ct_id FROM OtherCareTaker o);
+
+-- [3] List the ids and names of the caretakers who care for both swimmers with id 2 and 3 respectively. You may use the code for Q2 (the result of question (d) in your query.
+
+WITH temp AS
+    ((SELECT s.swimmerId, s.main_ct_id AS ct_id FROM Swimmer s)
+	 UNION
+    (SELECT DISTINCT o.swimmerId, o.ct_id AS ct_id FROM OtherCareTaker o))
+SELECT c.ct_id,
+	CONCAT(c.fname, ' ', c.lname) AS caretaker
+FROM caretaker c INNER JOIN temp as t1 USING (ct_id)
+    INNER JOIN temp as t2 USING (ct_id)
+WHERE t1.swimmerId = 2
+AND t2.swimmerId = 3;
+
+-- [4] List the ids and names of the caretakers and the number of swimmers they care for (including both as the primary caretaker or alternative caretaker).
+WITH temp AS
+    ((SELECT s.swimmerId, s.main_ct_id AS ct_id FROM Swimmer s)
+	 UNION
+    (SELECT DISTINCT o.swimmerId, o.ct_id AS ct_id FROM OtherCareTaker o)) 
+SELECT c.ct_id,
+	CONCAT(c.fname, ' ', c.lname) AS caretaker,
+	COUNT(DISTINCT temp.swimmerId) AS `number of swimmers`
+FROM caretaker c INNER JOIN temp USING (ct_id)
+GROUP BY 1, 2;
+
+	
+-- [5] For each meet, list the meet id, meet title, and the number of 100m events (i.e. event with titles containing the word '100m') in the following manner. Only list those meets with 2 or less 100m events.
+SELECT DISTINCT m.meetId, m.title,
+    COUNT(e.eventId) AS `Number of 100m events`
+FROM meet AS m LEFT JOIN event AS e ON (m.meetId = e.meetId AND e.title LIKE '%100m%')
+GROUP BY m.meetId, m.title
+HAVING `Number of 100m events` <= 2;
+
+-- Note that the following will not work was the WHERE clause will eliminate Meet with id 3 as the meet has no 100m event.
+
+SELECT DISTINCT m.meetId, m.title,
+    COUNT(e.eventId) AS `Number of 100m events`
+FROM meet AS m LEFT JOIN event AS e USING (meetId)
+WHERE e.title LIKE '%100m%'
+GROUP BY m.meetId, m.title
+HAVING `Number of 100m events` <= 2;
+
+-- [6] For each meet and event, list the meet id and title, the event id and title, and the ids and names of swimmers in the following manner.
+SELECT DISTINCT m.meetId, 
+	m.title,
+	e.eventId,
+	e.title,
+	GROUP_CONCAT(CONCAT(s.swimmerId, ': ', s.fname, ' ', s.lname) SEPARATOR '; ') AS `swimmers (id:name)`
+FROM meet AS m INNER JOIN event AS e USING (meetId)
+	INNER JOIN participation AS p USING (eventId)
+	INNER JOIN swimmer AS s USING (swimmerId)
+GROUP BY m.meetId, m.title, e.eventId, e.title;
+
+-- [7] List the ids and names of the swimmers who have participated in the meet 'UHCL Open' but not the meet 'Clear Lake Contest', in the following manner.
+WITH sm AS
+(SELECT DISTINCT p.swimmerId, e.meetId, m.title
+ FROM participation AS p INNER JOIN event AS e ON (p.eventId = e.eventId)
+	INNER JOIN meet AS m ON (e.meetId = m.meetId))
+SELECT DISTINCT s.swimmerId,
+	 CONCAT(s.FName, ' ', s.LName) AS swimmer
+FROM swimmer AS s INNER JOIN sm USING (swimmerId)
+WHERE sm.title = 'UHCL Open'
+AND s.swimmerId NOT IN (SELECT swimmerID FROM sm WHERE sm.title = 'Clear Lake Contest');
+
+     
