@@ -1,0 +1,100 @@
+-- Using tuyo database
+
+-- [1] Show the numbers of faculty in departments and colleges in the following manner.
+WITH temp AS
+(SELECT DISTINCT CONCAT(sc.schoolCode, ': ', sc.schoolName) AS college, 
+    CONCAT(d.deptCode, ': ', d.deptName) AS department,
+    COUNT(f.facId) As numFaculty 
+ FROM school AS sc LEFT JOIN department AS d ON (sc.schoolCode = d.schoolCode)
+    LEFT JOIN faculty AS f ON (f.deptCode = d.deptCode)
+ GROUP BY college, department)
+SELECT college, 
+   SUM(numFaculty) OVER(PARTITION BY college) AS `# faculty (coll)`,
+   IFNULL(department, ' ') AS department, 
+   numFaculty AS `# faculty (dept)`
+FROM temp;  
+
+-- [2] The postal office in the university using toyu stores mail code information in an Excel file. It is now converted to a .csv file: mailcode.csv. The postal office desires to store the mail code information in toyu. It has been decided that a new table, Mailcode, should be created for that purpose. Study the .csv file and design and execute the SQL statement to create the table schema. List the assumption you made between deptCode and mailCode.
+
+-- assumption: deptCode and mailCode is one to one.
+USE toyu;
+
+DROP TABLE IF EXISTS MailCode;
+CREATE TABLE IF NOT EXISTS MailCode(
+    mailCode    CHAR(4) NOT NULL,
+    deptCode    CHAR(4) NOT NULL,
+    Building    VARCHAR(100),
+    Room        VARCHAR(30),
+    CONSTRAINT MailCode_mailCode_pk PRIMARY KEY (mailCode),
+    -- alternate keys: [1] deptCode 
+    CONSTRAINT MailCode_deptCode_ck UNIQUE (mailCode),
+    CONSTRAINT MailCode_deptCode_fk FOREIGN KEY (deptCode) 
+        REFERENCES Department(deptCode)
+);
+
+-- [3] Use the "LOAD DATA" command in MySQL to load mailcode.csv into the table MailCode in toyu. Show the command in your submission. Tips: (a) LOAD DATA may load local client files or server-side files. (b) End of line is represented as \r\n in Windows.
+
+LOAD DATA LOCAL INFILE 'mailcode.csv'
+INTO TABLE MailCode
+FIELDS OPTIONALLY ENCLOSED BY '"'
+TERMINATED BY ','
+LINES TERMINATED BY '\r\n'
+IGNORE 1 ROWS
+(deptCode, mailCode, Building, Room);
+
+SELECT * FROM MailCode;
+
+-- [4] Create a view for the use of the postal office. Executing "SELECT * FROM MailView;" should show the following.
+
+CREATE OR REPLACE VIEW MailView AS
+SELECT DISTINCT m.MailCode, m.Building, m.Room,
+    d.deptCode, d.deptName AS department,
+    s.schoolCode, s.schoolName,
+    f.facId, f.lname AS facLName, f.fname AS facFName 
+FROM MailCode AS m INNER JOIN Department AS d ON (m.deptCode = d.deptCode)
+    INNER JOIN School AS s ON (d.schoolCode = s.schoolCode)
+    LEFT JOIN faculty AS f ON (d.deptCode = f.deptCode);
+    
+SELECT * FROM MailView;
+
+-- [5] Write a function getMailCode to accept a schoolCode and return a list of mail codes for the school in the following manner. You must use the view MailView.
+
+DELIMITER //
+
+CREATE OR REPLACE FUNCTION getMailCode(sCode CHAR(4)) RETURNS VARCHAR(255)
+READS SQL DATA
+BEGIN
+   DECLARE result VARCHAR(255);
+
+   SELECT GROUP_CONCAT(DISTINCT CONCAT(mailCode) SEPARATOR '; ') INTO result
+   FROM MailView
+   WHERE schoolCode = sCode;
+
+   RETURN result;
+END //
+
+DELIMITER ;
+
+SELECT getMailCode('CSE');
+
+-- [6] Write a MySQL procedure to take one input parameter: the name of a table inside the toyu database. It should set one output parameter row_count to count the number of rows in the table.
+
+DELIMITER $$
+CREATE OR REPLACE PROCEDURE count_rows(
+    IN table_name VARCHAR(64),
+    OUT row_count INT
+)
+BEGIN
+    SET @query = CONCAT('SELECT COUNT(*) INTO @__cr_row_count FROM toyu.`', table_name, '`');
+    PREPARE stmt FROM @query;
+    EXECUTE stmt;
+    SET row_count = @__cr_row_count;
+    DEALLOCATE PREPARE stmt;
+END$$
+DELIMITER ;
+
+CALL count_rows('student', @row_count);
+SELECT @row_count;
+
+CALL count_rows('enroll', @row_count);
+SELECT @row_count;
